@@ -1,16 +1,131 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=1024">
-    <title>YF-AKSARA - MAN 1 Kota Cirebon</title>
-    <script>
-        // Mengarahkan domain yfaksara.my.id langsung ke web app Apps Script secara penuh dan bersih
-        window.location.replace("https://script.google.com/macros/s/AKfycbwJRcPf5Z_9uipiKod12OjQxFSBeSZCm7fHk7f0pcT2/dev");
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YF-CLASS Management System - MAN 1 Kota Cirebon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Montserrat', sans-serif; background-color: #F4F7F9; color: #333333; }
+    .ui-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); }
+    .ui-btn-primary { background: #F5A623; color: white; border-radius: 50px; transition: all 0.2s; }
+    .ui-btn-secondary { background: #00A39E; color: white; border-radius: 50px; transition: all 0.2s; }
+  </style>
 </head>
-<body style="background: #F4F7F9; font-family: Montserrat, sans-serif; text-align: center; padding-top: 100px;">
-    <h3>Memuat YF-AKSARA MAN 1 Kota Cirebon...</h3>
-    <p>Silakan tunggu sebentar, Anda sedang dialihkan ke sistem.</p>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <!-- FORM LOGIN UTAMA YANG BERJALAN DI DOMAIN YFAKSARA.MY.ID -->
+  <div id="loginInterface" class="w-full max-w-4xl flex flex-col md:flex-row gap-6 items-stretch">
+    
+    <!-- PORTAL GURU -->
+    <div class="flex-1 bg-white p-8 rounded-3xl shadow-lg border border-slate-100">
+      <div class="w-14 h-14 bg-[#E6F6F5] text-[#00A39D] rounded-2xl flex items-center justify-center text-2xl mb-6">
+        <i class="fas fa-chalkboard-teacher"></i>
+      </div>
+      <h3 class="text-xl font-black uppercase mb-1 text-slate-800">Portal Guru & Admin</h3>
+      <p class="text-xs text-slate-500 mb-6">Masuk menggunakan kredensial Wali Kelas.</p>
+      
+      <form onsubmit="handleCustomLogin(event, 'guru')" class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Username</label>
+          <input type="text" id="usernameGuru" required class="w-full bg-slate-50 border rounded-2xl p-3 text-sm">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Password</label>
+          <input type="password" id="passwordGuru" required class="w-full bg-slate-50 border rounded-2xl p-3 text-sm">
+        </div>
+        <button type="submit" class="w-full ui-btn-secondary py-3.5 text-xs font-black uppercase tracking-widest flex justify-center items-center">
+          Login Wali Kelas <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- PORTAL SISWA -->
+    <div class="flex-1 bg-white p-8 rounded-3xl shadow-lg border border-slate-100">
+      <div class="w-14 h-14 bg-orange-50 text-[#F37021] rounded-2xl flex items-center justify-center text-2xl mb-6">
+        <i class="fas fa-user-graduate"></i>
+      </div>
+      <h3 class="text-xl font-black uppercase mb-1 text-slate-800">Portal Siswa & Wali</h3>
+      <p class="text-xs text-slate-500 mb-6">Masuk menggunakan kredensial kelas.</p>
+      
+      <form onsubmit="handleCustomLogin(event, 'siswa')" class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Username Kelas</label>
+          <input type="text" id="usernameSiswa" required class="w-full bg-slate-50 border rounded-2xl p-3 text-sm">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase text-slate-500 mb-1">Password</label>
+          <input type="password" id="passwordSiswa" required class="w-full bg-slate-50 border rounded-2xl p-3 text-sm">
+        </div>
+        <button type="submit" class="w-full ui-btn-primary py-3.5 text-xs font-black uppercase tracking-widest flex justify-center items-center">
+          Login Siswa <i class="fas fa-arrow-right ml-2"></i>
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- KONTAINER APLIKASI UTAMA (MUNCUL SETELAH LOGIN SUKSES) -->
+  <div id="appInterface" class="hidden fixed inset-0 bg-[#F8FAFC] flex-col z-50">
+    <header class="bg-white px-6 py-4 flex justify-between items-center border-b">
+      <h1 class="font-black text-[#00A39D] uppercase">YF-AKSARA - MAN 1 KOTA CIREBON</h1>
+      <button onclick="location.reload()" class="text-xs text-rose-600 font-bold uppercase px-4 py-2 bg-rose-50 rounded-full">Logout</button>
+    </header>
+    <main class="flex-1 p-6 overflow-y-auto">
+      <div class="max-w-4xl mx-auto bg-white p-8 rounded-2xl shadow-sm text-center">
+        <h2 class="text-2xl font-bold text-slate-800 mb-4">Selamat Datang, <span id="namaUserAktif">User</span>!</h2>
+        <p class="text-sm text-slate-600 mb-6">Anda berhasil masuk melalui domain resmi <strong class="text-[#00A39D]">yfaksara.my.id</strong>.</p>
+        <div id="panelMenuSuperAdmin" class="hidden p-4 bg-teal-50 rounded-xl text-teal-800 font-medium text-xs">
+          ✅ Hak Akses Super Admin Aktif di Domain Ini.
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // URL Web App Google Apps Script Anda (Ganti dengan /exec Anda)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJRcPf5Z_9uipiKod12OjQxFSBeSZCm7fHk7f0pcT2/exec";
+
+    function handleCustomLogin(e, portalType) {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Memeriksa Akses...'; 
+      btn.disabled = true;
+
+      const u = document.getElementById(portalType === 'guru' ? 'usernameGuru' : 'usernameSiswa').value;
+      const p = document.getElementById(portalType === 'guru' ? 'passwordGuru' : 'passwordSiswa').value;
+
+      // Mengirim data login ke backend Apps Script via fetch (JSONP / No-CORS workaround via parameter)
+      const targetUrl = `${SCRIPT_URL}?action=login&u=${encodeURIComponent(u)}&p=${encodeURIComponent(p)}&portal=${portalType}`;
+
+      fetch(targetUrl)
+        .then(response => response.json())
+        .then(res => {
+          btn.innerHTML = originalText; 
+          btn.disabled = false;
+          if (res.success) {
+            document.getElementById('loginInterface').classList.add('hidden');
+            const app = document.getElementById('appInterface');
+            app.classList.remove('hidden');
+            app.classList.add('flex');
+            
+            document.getElementById('namaUserAktif').innerText = res.nama || u;
+            if (res.role === 'super_admin') {
+              document.getElementById('panelMenuSuperAdmin').classList.remove('hidden');
+            }
+          } else {
+            alert(res.error || "Login gagal! Periksa kembali username dan password.");
+          }
+        })
+        .catch(err => {
+          btn.innerHTML = originalText; 
+          btn.disabled = false;
+          alert("Terjadi kesalahan koneksi ke server.");
+        });
+    }
+  </script>
 </body>
 </html>
