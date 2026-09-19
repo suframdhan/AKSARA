@@ -1770,28 +1770,36 @@ function cetakRiwayatSaja(areaId) {
       const u = document.getElementById('usernameGuru').value;
       const p = document.getElementById('passwordGuru').value;
       
-      google.script.run.withSuccessHandler(res => {
-        btn.innerHTML = originalText; btn.disabled = false;
-        if(res.success) {
-           currentUserRole = res.role;
-           currentKelas = res.kelas;
-           currentNamaGuru = res.nama || 'Mohammad Yusuf Ramadhan, S.Pd';
-           currentNipGuru = res.nip || '-';
-           currentUsernameGuru = u; // Menyimpan status username aktif
-           
-           // PENYIMPANAN SESI KE LOCALSTORAGE AGAR TIDAK HILANG SAAT REFRESH
-           localStorage.setItem('yf_logged_in', 'true');
-           localStorage.setItem('yf_role', res.role);
-           localStorage.setItem('yf_kelas', res.kelas);
-           localStorage.setItem('yf_namaGuru', currentNamaGuru);
-           localStorage.setItem('yf_nipGuru', currentNipGuru);
-           localStorage.setItem('yf_usernameGuru', u);
+      // Menggunakan fetch API agar tembus iframe custom domain
+      const scriptURL = 'MASUKKAN_URL_EXEC_ANDA_DI_SINI/exec'; 
+      
+      fetch(scriptURL + '?action=login&u=' + encodeURIComponent(u) + '&p=' + encodeURIComponent(p) + '&portal=guru')
+        .then(response => response.json())
+        .then(res => {
+          btn.innerHTML = originalText; btn.disabled = false;
+          if(res.success) {
+             currentUserRole = res.role;
+             currentKelas = res.kelas;
+             currentNamaGuru = res.nama || 'Mohammad Yusuf Ramadhan, S.Pd';
+             currentNipGuru = res.nip || '-';
+             currentUsernameGuru = u;
+             
+             localStorage.setItem('yf_logged_in', 'true');
+             localStorage.setItem('yf_role', res.role);
+             localStorage.setItem('yf_kelas', res.kelas);
+             localStorage.setItem('yf_namaGuru', currentNamaGuru);
+             localStorage.setItem('yf_nipGuru', currentNipGuru);
+             localStorage.setItem('yf_usernameGuru', u);
 
-           openApplication(res.role);
-        } else {
-           alert(res.error);
-        }
-      }).verifyLogin(u, p, 'guru'); // <--- PENGUNCI KE PORTAL GURU
+             openApplication(res.role);
+          } else {
+             alert(res.error);
+          }
+        })
+        .catch(err => {
+          btn.innerHTML = originalText; btn.disabled = false;
+          alert('Koneksi ke server gagal: ' + err);
+        });
     }
 
     function handleLoginSiswa(e) {
@@ -1802,29 +1810,35 @@ function cetakRiwayatSaja(areaId) {
       const u = document.getElementById('usernameSiswa').value;
       const p = document.getElementById('passwordSiswa').value;
       
-      google.script.run.withSuccessHandler(res => {
-        btn.innerHTML = originalText; btn.disabled = false;
-        if(res.success && res.role === 'siswa') {
-           currentUserRole = 'siswa';
-           currentKelas = res.kelas; 
-           currentNamaGuru = res.nama || 'Wali Kelas / Guru';
-           currentNipGuru = '-';
-           
-           // PENYIMPANAN SESI SISWA KE LOCALSTORAGE
-           localStorage.setItem('yf_logged_in', 'true');
-           localStorage.setItem('yf_role', 'siswa');
-           localStorage.setItem('yf_kelas', res.kelas);
-           localStorage.setItem('yf_namaGuru', currentNamaGuru);
-           localStorage.setItem('yf_nipGuru', '-');
-           localStorage.setItem('yf_usernameGuru', u);
+      const scriptURL = 'https://script.google.com/macros/s/AKfycbwJRcPf5Z_9uipiKod12OjQxFSBeSZCm7fHk7f0pcT2/dev'; 
 
-           openApplication('siswa');
-        } else {
-           alert(res.error); // Langsung lempar error dari server (Akses Ditolak!)
-        }
-      }).verifyLogin(u, p, 'siswa'); // <--- PENGUNCI KE PORTAL SISWA
+      fetch(scriptURL + '?action=login&u=' + encodeURIComponent(u) + '&p=' + encodeURIComponent(p) + '&portal=siswa')
+        .then(response => response.json())
+        .then(res => {
+          btn.innerHTML = originalText; btn.disabled = false;
+          if(res.success && res.role === 'siswa') {
+             currentUserRole = 'siswa';
+             currentKelas = res.kelas; 
+             currentNamaGuru = res.nama || 'Wali Kelas / Guru';
+             currentNipGuru = '-';
+             
+             localStorage.setItem('yf_logged_in', 'true');
+             localStorage.setItem('yf_role', 'siswa');
+             localStorage.setItem('yf_kelas', res.kelas);
+             localStorage.setItem('yf_namaGuru', currentNamaGuru);
+             localStorage.setItem('yf_nipGuru', '-');
+             localStorage.setItem('yf_usernameGuru', u);
+
+             openApplication('siswa');
+          } else {
+             alert(res.error);
+          }
+        })
+        .catch(err => {
+          btn.innerHTML = originalText; btn.disabled = false;
+          alert('Koneksi ke server gagal: ' + err);
+        });
     }
-
     function changeAdminClass(newKelas) {
       currentKelas = newKelas;
       document.getElementById('roleBadge').innerText = `Admin / Wali ${newKelas}`;
